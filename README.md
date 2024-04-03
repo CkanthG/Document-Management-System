@@ -5,6 +5,15 @@ Follow this link to install the Minikube on your local computer/laptop.
 https://minikube.sigs.k8s.io/docs/start/
 After successful installation use "minikube start" command to start your minikube.
 
+## Kafka Installation on minikube cluster.
+
+Follow this link to install Kafka on minikube.
+https://bitnami.com/stack/kafka/helm
+
+Follow this link to install Kafka in your local.
+https://kafka.apache.org/quickstart
+
+
 ## Build Docker image and push to DockerHub by below commands.
 
 docker build -t document-management-system:version .
