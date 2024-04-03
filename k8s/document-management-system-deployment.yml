@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-management-system
+  labels:
+    app: document-management-system
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  replicas: 1
+  selector:
+    matchLabels:
+      app: document-management-system
+  progressDeadlineSeconds: 300
+  revisionHistoryLimit: 1
+  template:
+    metadata:
+      labels:
+        app: document-management-system
+    spec:
+      containers:
+        - name: document-management-system
+          image: docker.io/sreekanthgaddoju/document-management-system:latest
+          terminationMessagePolicy: FallbackToLogsOnError
+          ports:
+            - name: web
+              containerPort: 8080
+          resources:
+            limits:
+              cpu: 500m
+              memory: 4G
+            requests:
+              cpu: 500m
+              memory: 2G
+          volumeMounts:
+            - name: document-management-system-persistent-storage
+              mountPath: /var/lib/document-management-system
+      volumes:
+        - name: document-management-system-persistent-storage
+          persistentVolumeClaim:
+            claimName: document-management-system-pv-claim
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: document-management-system
+  labels:
+    app: document-management-system
+spec:
+  selector:
+    app: document-management-system
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: document-management-system
+  labels:
+    app: document-management-system
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "200m"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  rules:
+    - host: document-management-system
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: document-management-system
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - store
+      secretName: document-management-system-cert
