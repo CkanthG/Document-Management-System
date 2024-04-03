@@ -1,11 +1,15 @@
 package com.sree.document.service;
 
+import com.sree.document.kafka.KafkaProducerAndConsumer;
 import com.sree.document.models.CustomObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
@@ -16,16 +20,35 @@ public class CustomObjectServiceTest {
 
     @InjectMocks
     private CustomObjectService customObjectService;
+    @Mock
+    private KafkaProducerAndConsumer kafkaProducerAndConsumer;
 
     @BeforeEach
     public void cleanUpMock() {
+        MockitoAnnotations.initMocks(this);
         customObjectService.customObjectMap.clear();
     }
 
     @Test
     public void saveCustomObject() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.saveCustomObjectMetadata(customObject);
+        Object obj = customObjectService.getCustomObjectById(1);
+        Assertions.assertNotNull(obj);
+    }
+
+    @Test
+    public void updateCustomObject() {
+        CustomObject customObject = createCustomObjectBean();
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.saveCustomObjectMetadata(customObject);
+        customObject.setCustomObjectVersion(2);
+        customObjectService.updateCustomObjectMetadata(customObject, 1);
         Object obj = customObjectService.getCustomObjectById(1);
         Assertions.assertNotNull(obj);
     }
@@ -33,7 +56,11 @@ public class CustomObjectServiceTest {
     @Test
     public void getAllCustomObjects() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.customObjectMap.clear();customObjectService.saveCustomObjectMetadata(customObject);
         Map<Integer, CustomObject> allCustomObjects = customObjectService.getAllCustomObjects();
         Assertions.assertEquals(allCustomObjects.size(), 1);
     }
@@ -41,7 +68,11 @@ public class CustomObjectServiceTest {
     @Test
     public void getCustomObjectById() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.customObjectMap.clear();customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getCustomObjectById(1);
         Assertions.assertNotNull(co);
     }
@@ -49,7 +80,10 @@ public class CustomObjectServiceTest {
     @Test
     public void deleteCustomObject() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.saveCustomObjectMetadata(customObject);
         customObjectService.deleteCustomObject(customObject.getCustomObjectUUID());
         int size = customObjectService.customObjectMap.size();
         Assertions.assertEquals(size, 0);
@@ -58,7 +92,10 @@ public class CustomObjectServiceTest {
     @Test
     public void getCustomObjectByLatestVersion() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getLatestVersionCustomObject(customObject.getCustomObjectName());
         Assertions.assertNotNull(co);
     }
@@ -66,7 +103,10 @@ public class CustomObjectServiceTest {
     @Test
     public void getSpecificCustomObject() {
         CustomObject customObject = createCustomObjectBean();
-        customObjectService.saveDocumentMetadata(customObject);
+        customObjectService.customObjectMap.put(1, customObject);
+        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        customObjectService.customObjectMap.clear();
+        customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getSpecificCustomObject(customObject.getCustomObjectName(), customObject.getCustomObjectVersion());
         Assertions.assertNotNull(co);
     }

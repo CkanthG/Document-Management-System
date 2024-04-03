@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: document-management-system-config-map
+  namespace: default
+data:
+  KAFKA_HOST: "kafka-1712153120.default.svc.cluster.local"
+  KAFKA_PORT: "9092"
+  KAFKA_TOPIC: "document-topic"
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,6 +47,22 @@ spec:
             requests:
               cpu: 500m
               memory: 2G
+          env:
+            - name: KAFKA_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: document-management-system-config-map
+                  key: KAFKA_HOST
+            - name: KAFKA_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: document-management-system-config-map
+                  key: KAFKA_PORT
+            - name: KAFKA_TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: document-management-system-config-map
+                  key: KAFKA_TOPIC
           volumeMounts:
             - name: document-management-system-persistent-storage
               mountPath: /var/lib/document-management-system
