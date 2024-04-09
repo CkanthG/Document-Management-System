@@ -68,15 +68,14 @@ public class KafkaProducerAndConsumer {
         ProducerRecord<String, String> record = new ProducerRecord<>(topicValue, key, value);
         producer.send(record, (metadata, exception) -> {
             if (metadata != null) {
-                System.out.println("Message sent successfully: " + metadata.topic() +
-                        ", partition: " + metadata.partition() + ", offset: " + metadata.offset());
+                System.out.println("Message sent successfully: " + metadata.topic() + ", partition: " + metadata.partition() + ", offset: " + metadata.offset());
             } else {
                 System.err.println("Error sending message: " + exception.getMessage());
             }
         });
         // Close the producer
         producer.close();
-        System.out.println("Producer Closed");
+        System.out.println("Kafka Producer Is Closed ...");
     }
 
     /**
@@ -98,7 +97,7 @@ public class KafkaProducerAndConsumer {
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
             System.out.println("Records count : " + records.count());
-            System.out.println("Records : " + records);
+            System.out.println("Records Metadata : " + records);
             for (ConsumerRecord<String, String> record : records) {
                 System.out.println("Received message: key = " + record.key() + ", value = " + record.value() + ", " +
                                 "partition = " + record.partition() + ", offset = " + record.offset());
