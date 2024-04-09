@@ -14,4 +14,4 @@ spring:
       key-serializer: "org.apache.kafka.common.serialization.StringSerializer"
       value-serializer: "org.apache.kafka.common.serialization.StringSerializer"
     template:
-      default-topic: ${KAFKA_TOPIC:document-topic}
+      default-topic: ${KAFKA_TOPIC:document-management-topic}
