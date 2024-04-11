@@ -2,6 +2,9 @@ package com.sree.document.controller;
 
 import com.sree.document.models.CustomObject;
 import com.sree.document.service.CustomObjectService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,22 +23,19 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/customobject")
+@AllArgsConstructor
 public class CustomObjectController {
 
-    CustomObjectService customObjectService;
-
-    // constructor injection
-    public CustomObjectController(CustomObjectService customObjectService) {
-        this.customObjectService = customObjectService;
-    }
+    private CustomObjectService customObjectService;
 
     /**
      * This method is accepting custom object and store inside the map.
      * @param customObject
      */
     @PostMapping
-    public void addCustomObject(@RequestBody CustomObject customObject) {
+    public ResponseEntity<Void> addCustomObject(@RequestBody CustomObject customObject) {
         customObjectService.saveCustomObjectMetadata(customObject);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     /**
@@ -45,8 +45,8 @@ public class CustomObjectController {
      * @return updated custom object
      */
     @PutMapping
-    public CustomObject updateCustomObject(@RequestBody CustomObject customObject, @RequestParam int id) {
-        return customObjectService.updateCustomObjectMetadata(customObject, id);
+    public ResponseEntity<CustomObject> updateCustomObject(@RequestBody CustomObject customObject, @RequestParam int id) {
+        return ResponseEntity.ok(customObjectService.updateCustomObjectMetadata(customObject, id));
     }
 
     /**
@@ -54,8 +54,8 @@ public class CustomObjectController {
      * @return all custom objects map
      */
     @GetMapping
-    public Map<Integer, CustomObject> getAllCustomObjects() {
-        return customObjectService.getAllCustomObjects();
+    public ResponseEntity<Map<Integer, CustomObject>> getAllCustomObjects() {
+        return ResponseEntity.ok(customObjectService.getAllCustomObjects());
     }
 
     /**
@@ -64,8 +64,8 @@ public class CustomObjectController {
      * @return matched custom object.
      */
     @GetMapping("/{id}")
-    public CustomObject getCustomObjectByID(@PathVariable int id) {
-        return customObjectService.getCustomObjectById(id);
+    public ResponseEntity<CustomObject> getCustomObjectByID(@PathVariable int id) {
+        return ResponseEntity.ok(customObjectService.getCustomObjectById(id));
     }
 
     /**
@@ -73,8 +73,9 @@ public class CustomObjectController {
      * @param customobjectuuid
      */
     @DeleteMapping("/{customobjectuuid}")
-    public void deleteCustomObject(@PathVariable UUID customobjectuuid) {
+    public ResponseEntity<Void> deleteCustomObject(@PathVariable UUID customobjectuuid) {
         customObjectService.deleteCustomObject(customobjectuuid);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     /**
@@ -83,8 +84,8 @@ public class CustomObjectController {
      * @return map entry along with custom object.
      */
     @GetMapping("/name")
-    public Object getLatestVersionCustomObjectByName(@RequestParam String customObjectName) {
-        return customObjectService.getCustomObjectByLatestVersion(customObjectName);
+    public ResponseEntity<Object> getLatestVersionCustomObjectByName(@RequestParam String customObjectName) {
+        return ResponseEntity.ok(customObjectService.getCustomObjectByLatestVersion(customObjectName));
     }
 
     /**
@@ -94,7 +95,7 @@ public class CustomObjectController {
      * @return map entry along with custom object.
      */
     @GetMapping("/specificcustomobject")
-    public Object getSpecificVersionCustomObject(@RequestParam String customObjectName, @RequestParam int version) {
-        return customObjectService.getSpecificCustomObject(customObjectName, version);
+    public ResponseEntity<Object> getSpecificVersionCustomObject(@RequestParam String customObjectName, @RequestParam int version) {
+        return ResponseEntity.ok(customObjectService.getSpecificCustomObject(customObjectName, version));
     }
 }

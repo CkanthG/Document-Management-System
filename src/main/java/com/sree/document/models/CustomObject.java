@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * This bean class is to accept input and pass to kafka.
+ */
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

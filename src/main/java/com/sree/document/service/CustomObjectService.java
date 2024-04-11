@@ -1,8 +1,10 @@
 package com.sree.document.service;
 
-import com.sree.document.kafka.KafkaProducerAndConsumer;
+import com.sree.document.kafka.KafkaMessageListener;
 import com.sree.document.models.CustomObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -12,22 +14,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@Slf4j
 public class CustomObjectService {
 
     final public Map<Integer, CustomObject> customObjectMap = new ConcurrentHashMap<>();
     @Autowired
-    KafkaProducerAndConsumer kafkaProducerAndConsumer;
+    KafkaMessageListener kafkaMessageListener;
+    @Value("${spring.kafka.template.default-topic}")
+    private String topicValue;
 
     /**
      * This method is accepting custom object and save information in map.
      * @param customObject
      */
     public void saveCustomObjectMetadata(CustomObject customObject) {
+        log.info("CustomObjectService:saveCustomObjectMetadata execution started with: {}", customObject);
         // Get the next available key by incrementing the maximum key by 1
         int nextKey = customObjectMap.isEmpty() ? 1 :
                 customObjectMap.keySet().stream().max(Comparator.naturalOrder()).orElse(0) + 1;
         customObjectMap.put(nextKey, customObject);
-        kafkaProducerAndConsumer.kafkaProducer(customObject.getCustomObjectName(), customObjectMap.toString());
+        kafkaMessageListener.sendMessageToKafka(topicValue, customObjectMap.toString());
+        log.info("CustomObjectService:saveCustomObjectMetadata execution ended with: {}", customObject);
     }
 
     /**
@@ -37,6 +44,7 @@ public class CustomObjectService {
      * @return updated custom object.
      */
     public CustomObject updateCustomObjectMetadata(CustomObject customObject, int id) {
+        log.info("CustomObjectService:updateCustomObjectMetadata execution started with custom object: {} and id: {}", customObject, id);
         return customObjectMap.put(id, customObject);
     }
 
@@ -45,6 +53,7 @@ public class CustomObjectService {
      * @return all custom objects.
      */
     public Map<Integer, CustomObject> getAllCustomObjects() {
+        log.info("CustomObjectService:getAllCustomObjects execution started");
         return customObjectMap;
     }
 
@@ -54,7 +63,7 @@ public class CustomObjectService {
      * @return matched custom object.
      */
     public CustomObject getCustomObjectById(int id) {
-        kafkaProducerAndConsumer.kafkaConsumer();
+        log.info("CustomObjectService:getCustomObjectById execution started with id: {}", id);
         return customObjectMap.get(id);
     }
 
@@ -63,6 +72,7 @@ public class CustomObjectService {
      * @param customObjectUUID
      */
     public void deleteCustomObject(UUID customObjectUUID) {
+        log.info("CustomObjectService:deleteCustomObject execution started with UUID: {}", customObjectUUID);
         // Remove the entry with matching UUID
         customObjectMap.entrySet().removeIf(
                 entry -> entry.getValue().getCustomObjectUUID().equals(customObjectUUID)
@@ -75,6 +85,7 @@ public class CustomObjectService {
      * @return latest version custom object matched with custom object name.
      */
     public Object getCustomObjectByLatestVersion(String customObjectName) {
+        log.info("CustomObjectService:getCustomObjectByLatestVersion execution started with Name: {}", customObjectName);
         int customObjectVersion = getLatestVersionCustomObject(customObjectName);
         return getObjectFromMap(customObjectName, customObjectVersion);
     }
@@ -101,7 +112,7 @@ public class CustomObjectService {
      * @return return specific version object.
      */
     public Object getSpecificCustomObject(String customObjectName, int customObjectVersion) {
-        kafkaProducerAndConsumer.kafkaConsumer();
+        log.info("CustomObjectService:getSpecificCustomObject execution started with Name: {} and version: {}", customObjectName, customObjectVersion);
         return getObjectFromMap(customObjectName, customObjectVersion);
     }
 
@@ -112,6 +123,7 @@ public class CustomObjectService {
      * @return specific custom object.
      */
     private Object getObjectFromMap(String customObjectName, int customObjectVersion) {
+        log.info("CustomObjectService:getCustomObjectByLatestVersion execution started with Name: {}, version: {}", customObjectName, customObjectVersion);
         // Find the custom object by name and version
         return customObjectMap.values().stream()
                 .filter(customObject -> customObject.getCustomObjectName().equals(customObjectName)
