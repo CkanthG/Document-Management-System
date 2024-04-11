@@ -1,6 +1,6 @@
 package com.sree.document.service;
 
-import com.sree.document.kafka.KafkaProducerAndConsumer;
+import com.sree.document.kafka.KafkaMessageListener;
 import com.sree.document.models.CustomObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @ExtendWith(MockitoExtension.class)
 public class CustomObjectServiceTest {
 
     @InjectMocks
     private CustomObjectService customObjectService;
     @Mock
-    private KafkaProducerAndConsumer kafkaProducerAndConsumer;
+    private KafkaMessageListener kafkaMessageListener;
 
     @BeforeEach
     public void cleanUpMock() {
@@ -33,7 +35,7 @@ public class CustomObjectServiceTest {
     public void saveCustomObject() {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.saveCustomObjectMetadata(customObject);
         Object obj = customObjectService.getCustomObjectById(1);
@@ -44,7 +46,7 @@ public class CustomObjectServiceTest {
     public void updateCustomObject() {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.saveCustomObjectMetadata(customObject);
         customObject.setCustomObjectVersion(2);
@@ -58,7 +60,7 @@ public class CustomObjectServiceTest {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.customObjectMap.clear();customObjectService.saveCustomObjectMetadata(customObject);
         Map<Integer, CustomObject> allCustomObjects = customObjectService.getAllCustomObjects();
@@ -70,7 +72,7 @@ public class CustomObjectServiceTest {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.customObjectMap.clear();customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getCustomObjectById(1);
@@ -81,7 +83,7 @@ public class CustomObjectServiceTest {
     public void deleteCustomObject() {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.saveCustomObjectMetadata(customObject);
         customObjectService.deleteCustomObject(customObject.getCustomObjectUUID());
@@ -93,7 +95,7 @@ public class CustomObjectServiceTest {
     public void getCustomObjectByLatestVersion() {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getLatestVersionCustomObject(customObject.getCustomObjectName());
@@ -104,7 +106,7 @@ public class CustomObjectServiceTest {
     public void getSpecificCustomObject() {
         CustomObject customObject = createCustomObjectBean();
         customObjectService.customObjectMap.put(1, customObject);
-        Mockito.doNothing().when(kafkaProducerAndConsumer).kafkaProducer(customObject.getCustomObjectName(), customObjectService.customObjectMap.toString());
+        Mockito.doNothing().when(kafkaMessageListener).sendMessageToKafka(any(), any());
         customObjectService.customObjectMap.clear();
         customObjectService.saveCustomObjectMetadata(customObject);
         Object co = customObjectService.getSpecificCustomObject(customObject.getCustomObjectName(), customObject.getCustomObjectVersion());
