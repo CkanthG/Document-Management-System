@@ -20,7 +20,7 @@ public class CustomObjectService {
     final public Map<Integer, CustomObject> customObjectMap = new ConcurrentHashMap<>();
     @Autowired
     KafkaMessageListener kafkaMessageListener;
-    @Value("${spring.kafka.template.default-topic}")
+    @Value("${kafka.topic}")
     private String topicValue;
 
     /**

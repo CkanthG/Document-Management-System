@@ -1,5 +1,6 @@
 package com.sree.document.kafka;
 
+import com.sree.document.models.CustomObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,13 +15,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class KafkaMessageListener {
 
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     /**
      * This method is to listen the topic
      * @param message
      */
-    @KafkaListener(topics = "${spring.kafka.template.default-topic}", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "${kafka.topic}", groupId = "${kafka.group-id}")
     public void listenToTopic(String message) {
         log.info("Received message from Kafka: {}", message);
     }
